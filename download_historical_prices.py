@@ -11,12 +11,13 @@ END_DATE = "2015-01-01"
 
 def build_stock_dataset(start=START_DATE, end=END_DATE):
     """
+    获取所有公司在 指定日期范围内的 历史股票收盘价格
     Creates the dataset containing all stock prices
     :returns: stock_prices.csv
     """
 
     statspath = "intraQuarter/_KeyStats/"
-    ticker_list = os.listdir(statspath)
+    ticker_list = os.listdir(statspath) #文件夹名称为公司的单词缩写
 
     # Required on macOS
     if '.DS_Store' in ticker_list:
@@ -26,16 +27,16 @@ def build_stock_dataset(start=START_DATE, end=END_DATE):
     # Get all Adjusted Close prices for all the tickers in our list,
     # between START_DATE and END_DATE
     all_data = pdr.get_data_yahoo(ticker_list, start, end)
-    stock_data = all_data['Adj Close']
+    stock_data = all_data['Adj Close']  #stock_data保存的是 所有公司 在指定日期范围内 的收盘价格
 
     # Remove any columns that hold no data, and print their tickers.
-    stock_data.dropna(how='all', axis=1, inplace=True)
+    stock_data.dropna(how='all', axis=1, inplace=True)  #去掉哪些无法获取历史股票数据的公司
     missing_tickers = [
         ticker for ticker in ticker_list if ticker.upper() not in stock_data.columns]
     print(f"{len(missing_tickers)} tickers are missing: \n {missing_tickers} ")
     # If there are only some missing datapoints, forward fill.
     stock_data.ffill(inplace=True)
-    stock_data.to_csv('stock_prices.csv')
+    stock_data.to_csv('stock_prices.csv')   #将数据转换成 .csv格式 以便输入 训练模型
 
 
 def build_sp500_dataset(start=START_DATE, end=END_DATE):
